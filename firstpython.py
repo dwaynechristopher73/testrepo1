@@ -3,3 +3,5 @@ print("New python File on Git-Hub walk through")
 print("Example of pull request for coursera git hub walkthrough")
 #edit test
 # this is the test of a new branch file edit and commit
+#i have cloned the repository from command prompt
+print("cloning is fun")
