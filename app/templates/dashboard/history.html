@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Checkout History - Novalis Parts{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Checkout History</h2>
+  <a href="{{ url_for('dashboard.export_csv') }}?{{ request.query_string.decode() }}"
+     class="btn btn-outline-success btn-sm">Export CSV</a>
+</div>
+
+<form method="GET" action="{{ url_for('dashboard.history') }}" class="row g-2 mb-4">
+  <div class="col-md-2">
+    <label class="form-label small">From</label>
+    <input type="date" name="date_from" value="{{ filters.date_from }}" class="form-control form-control-sm">
+  </div>
+  <div class="col-md-2">
+    <label class="form-label small">To</label>
+    <input type="date" name="date_to" value="{{ filters.date_to }}" class="form-control form-control-sm">
+  </div>
+  <div class="col-md-2">
+    <label class="form-label small">Employee</label>
+    <select name="employee" class="form-select form-select-sm">
+      <option value="">All</option>
+      {% for emp in employees %}
+      <option value="{{ emp }}" {% if filters.employee == emp %}selected{% endif %}>{{ emp }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2">
+    <label class="form-label small">Department</label>
+    <select name="department" class="form-select form-select-sm">
+      <option value="">All</option>
+      {% for dept in departments %}
+      <option value="{{ dept }}" {% if filters.department == dept %}selected{% endif %}>{{ dept }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="col-md-2">
+    <label class="form-label small">Part #</label>
+    <input type="text" name="part_number" value="{{ filters.part_number }}"
+           class="form-control form-control-sm" placeholder="search...">
+  </div>
+  <div class="col-md-2 d-flex align-items-end gap-1">
+    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+    <a href="{{ url_for('dashboard.history') }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+  </div>
+</form>
+
+{% if rows %}
+<p class="text-muted small">{{ rows|length }} record(s)</p>
+<div class="table-responsive">
+  <table class="table table-striped table-hover table-sm align-middle">
+    <thead class="table-dark">
+      <tr>
+        <th>Date</th>
+        <th>Employee</th>
+        <th>Department</th>
+        <th>Part #</th>
+        <th>Description</th>
+        <th>Qty</th>
+        <th>Notes</th>
+        <th>Confirmed By</th>
+        <th>Logged</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.checkout_date }}</td>
+        <td>{{ r.employee_name }}</td>
+        <td>{{ r.department }}</td>
+        <td><code>{{ r.part_number }}</code></td>
+        <td>{{ r.description }}</td>
+        <td>{{ r.quantity }}</td>
+        <td class="text-muted small">{{ r.notes or '' }}</td>
+        <td class="text-muted small">{{ r.confirmed_by or '' }}</td>
+        <td class="text-muted small">{{ r.created_at }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-info">No records found for the selected filters.</div>
+{% endif %}
+{% endblock %}

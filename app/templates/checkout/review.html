@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Review Checkout - Novalis Parts{% endblock %}
+{% block content %}
+<h2 class="mb-1">Review Extracted Records</h2>
+<p class="text-muted mb-3">
+  File: <strong>{{ entry.filename }}</strong> &mdash; {{ rows|length }} row(s) extracted.
+  Correct any errors below, then click <strong>Save All</strong>.
+</p>
+
+<div class="mb-3 d-flex gap-2 align-items-center">
+  <span class="badge bg-success">Green = high confidence</span>
+  <span class="badge bg-warning text-dark">Yellow = review suggested</span>
+  <span class="badge bg-danger">Red = needs correction</span>
+</div>
+
+<form method="POST" action="{{ url_for('checkout.confirm_review', upload_id=upload_id) }}">
+  <div class="mb-3">
+    <label class="form-label fw-semibold">Your name (confirming these records)</label>
+    <input type="text" name="confirmed_by" class="form-control" style="max-width:280px"
+           placeholder="e.g. Dwayne" required>
+  </div>
+
+  {% if rows %}
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle" id="reviewTable">
+      <thead class="table-dark">
+        <tr>
+          <th style="width:40px">Skip</th>
+          <th>Date</th>
+          <th>Employee</th>
+          <th>Department</th>
+          <th>Part</th>
+          <th>Qty</th>
+          <th>Notes</th>
+          <th>Confidence</th>
+          <th>Raw OCR</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        {% set min_score = [row.emp_score, row.dept_score, row.part_score] | min %}
+        {% if min_score >= 80 %}
+          {% set row_class = 'table-success' %}
+        {% elif min_score >= 60 %}
+          {% set row_class = 'table-warning' %}
+        {% else %}
+          {% set row_class = 'table-danger' %}
+        {% endif %}
+        <tr class="{{ row_class }}">
+          <td class="text-center">
+            <input type="checkbox" name="skip_{{ row.pending_id }}" value="1"
+                   title="Skip this row (do not save)">
+          </td>
+          <td>
+            <input type="date" name="date_{{ row.pending_id }}"
+                   value="{{ row.date_raw }}" class="form-control form-control-sm" style="min-width:130px">
+          </td>
+          <td>
+            <select name="employee_{{ row.pending_id }}" class="form-select form-select-sm" style="min-width:120px">
+              <option value="">-- select --</option>
+              {% for emp in employees %}
+              <option value="{{ emp }}"
+                {% if row.employee == emp %}selected{% endif %}>{{ emp }}</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td>
+            <select name="department_{{ row.pending_id }}" class="form-select form-select-sm">
+              <option value="">-- select --</option>
+              {% for dept in departments %}
+              <option value="{{ dept }}"
+                {% if row.department == dept %}selected{% endif %}>{{ dept }}</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td>
+            <select name="part_number_{{ row.pending_id }}" class="form-select form-select-sm part-select"
+                    style="min-width:160px">
+              <option value="">-- select --</option>
+              {% for p in parts %}
+              <option value="{{ p.part_number }}"
+                {% if row.part and row.part.part_number == p.part_number %}selected{% endif %}>
+                {{ p.part_number }} – {{ p.description }}
+              </option>
+              {% endfor %}
+            </select>
+          </td>
+          <td>
+            <input type="text" name="quantity_{{ row.pending_id }}"
+                   value="{{ row.quantity_raw }}" class="form-control form-control-sm" style="width:70px">
+          </td>
+          <td>
+            <input type="text" name="notes_{{ row.pending_id }}"
+                   class="form-control form-control-sm" placeholder="optional" style="min-width:120px">
+          </td>
+          <td class="text-center small">
+            <div>Emp: {{ row.emp_score|int }}%</div>
+            <div>Dept: {{ row.dept_score|int }}%</div>
+            <div>Part: {{ row.part_score|int }}%</div>
+          </td>
+          <td class="text-muted small" style="max-width:200px; word-break:break-word;">
+            {{ row.line_text }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="d-flex gap-2 mt-3">
+    <button type="submit" class="btn btn-success btn-lg">Save All Records</button>
+    <a href="{{ url_for('checkout.upload_form') }}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+  </div>
+
+  {% else %}
+  <div class="alert alert-warning">
+    No records could be extracted from this file. Try uploading a clearer scan.
+  </div>
+  <a href="{{ url_for('checkout.upload_form') }}" class="btn btn-primary">Try Again</a>
+  {% endif %}
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+// Simple type-to-filter for part selects
+document.querySelectorAll('.part-select').forEach(function(sel) {
+  sel.addEventListener('keydown', function(e) {
+    if (e.key.length === 1) {
+      const q = e.key.toLowerCase();
+      for (let opt of sel.options) {
+        if (opt.text.toLowerCase().includes(q)) {
+          opt.selected = true;
+          break;
+        }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

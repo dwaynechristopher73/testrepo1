@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Upload Checkout Sheet - Novalis Parts{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <h2 class="mb-4">Upload Checkout Sheet</h2>
+    <div class="card">
+      <div class="card-body">
+        <p class="text-muted">Upload a scanned checkout sheet (PDF, PNG, or JPG) from the Lexmark printer.
+          The system will read the handwriting and extract checkout records for your review.</p>
+
+        <form method="POST" action="{{ url_for('checkout.upload_file') }}" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label class="form-label">Scanned File (PDF, PNG, JPG, JPEG)</label>
+            <input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Upload &amp; Process</button>
+          <a href="{{ url_for('dashboard.history') }}" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+      </div>
+    </div>
+
+    <div class="mt-4 alert alert-info">
+      <strong>After upload:</strong> You will be shown the extracted records and can correct any errors
+      before they are saved to the database.
+    </div>
+  </div>
+</div>
+{% endblock %}

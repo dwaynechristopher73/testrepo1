@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Home - Novalis Parts{% endblock %}
+{% block content %}
+<div class="text-center py-5">
+  <h1 class="display-5">Novalis Parts Inventory</h1>
+  <p class="lead text-muted">Track parts checkouts across all departments.</p>
+  <div class="d-flex gap-3 justify-content-center mt-4">
+    <a href="{{ url_for('checkout.upload_form') }}" class="btn btn-primary btn-lg">Upload Checkout Sheet</a>
+    <a href="{{ url_for('dashboard.history') }}" class="btn btn-outline-secondary btn-lg">View History</a>
+  </div>
+</div>
+{% endblock %}

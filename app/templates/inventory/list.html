@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Parts Inventory - Novalis Parts{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Parts Inventory <span class="badge bg-secondary fs-6">{{ parts|length }}</span></h2>
+  <a href="{{ url_for('inventory.upload_form') }}" class="btn btn-primary btn-sm">Upload New List</a>
+</div>
+
+{% if parts %}
+  <div class="mb-3">
+    <input type="text" id="partSearch" class="form-control" placeholder="Search parts...">
+  </div>
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle" id="partsTable">
+      <thead class="table-dark">
+        <tr>
+          <th>Part Number</th>
+          <th>Description</th>
+          <th>Unit</th>
+          <th>Location</th>
+          <th>Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in parts %}
+        <tr>
+          <td><code>{{ p.part_number }}</code></td>
+          <td>{{ p.description }}</td>
+          <td>{{ p.unit or '' }}</td>
+          <td>{{ p.location or '' }}</td>
+          <td class="text-muted small">{{ p.updated_at or p.created_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="alert alert-info">
+    No parts loaded yet. <a href="{{ url_for('inventory.upload_form') }}">Upload an Excel file</a> to get started.
+  </div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('partSearch').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('#partsTable tbody tr').forEach(function(row) {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Upload Inventory - Novalis Parts{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <h2 class="mb-4">Upload Parts Inventory</h2>
+    <div class="card">
+      <div class="card-body">
+        <p class="text-muted">Upload an Excel (.xlsx) file with your parts list. The file must have columns for
+          <strong>part number</strong> and <strong>description</strong>. Optional columns:
+          <em>unit</em> and <em>location</em>.</p>
+
+        <form method="POST" action="{{ url_for('inventory.upload_file') }}" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label class="form-label">Excel File (.xlsx)</label>
+            <input type="file" name="file" accept=".xlsx" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Upload &amp; Import</button>
+          <a href="{{ url_for('inventory.list_parts') }}" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <h5>Expected format</h5>
+      <table class="table table-sm table-bordered">
+        <thead class="table-light">
+          <tr><th>part_number</th><th>description</th><th>unit</th><th>location</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>PN-1001</td><td>3/8 Hex Bolt SS</td><td>each</td><td>Bin A-1</td></tr>
+          <tr><td>PN-1002</td><td>Flat Washer 3/8</td><td>each</td><td>Bin A-2</td></tr>
+        </tbody>
+      </table>
+      <p class="text-muted small">Column names are flexible — "Part #", "Part No", "Item #" are all accepted.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
